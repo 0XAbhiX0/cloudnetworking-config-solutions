@@ -30,10 +30,10 @@ steps:
         terraform version
 
         echo "--- Executing 01-organization stage ---"
-        cd execution/01-organization && terraform init && terraform apply -auto-approve && cd ../..
+        cd execution/01-organization && terraform init && terraform apply -var-file="../../configuration/organization.tfvars" -auto-approve && cd ../..
 
         echo "--- Executing 02-networking stage ---"
-        cd execution/02-networking && terraform init && terraform apply -auto-approve && cd ../..
+        cd execution/02-networking && terraform init && terraform apply -var-file="../../configuration/networking.tfvars" -auto-approve && cd ../..
 
         echo "--- Executing 04-producer/BigQuery stage ---"
         cd execution/04-producer/BigQuery && terraform init && terraform apply -auto-approve && cd ../../..

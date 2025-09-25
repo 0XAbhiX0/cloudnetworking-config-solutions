@@ -36,10 +36,10 @@ steps:
         cd execution/04-producer/BigQuery && terraform init && terraform destroy -auto-approve && cd ../../..
 
         echo "--- Destroying 02-networking stage ---"
-        cd execution/02-networking && terraform init && terraform destroy -auto-approve && cd ../..
+        cd execution/02-networking && terraform init && terraform destroy -var-file="../../configuration/networking.tfvars" -auto-approve && cd ../..
 
         echo "--- Destroying 01-organization stage ---"
-        cd execution/01-organization && terraform init && terraform destroy -auto-approve && cd ../..
+        cd execution/01-organization && terraform init && terraform destroy -var-file="../../configuration/organization.tfvars" -auto-approve && cd ../..
 
         echo "✅ Complete BigQuery setup destruction finished."
 

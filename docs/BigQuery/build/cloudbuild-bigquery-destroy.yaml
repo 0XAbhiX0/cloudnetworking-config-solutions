@@ -1,0 +1,56 @@
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+steps:
+- id: 'destroy-complete-bq-setup'
+  name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
+  entrypoint: /bin/bash
+  args:
+    - '-c'
+    - |
+        set -e
+        apt-get update -y && apt-get install -y unzip git wget
+
+        TERRAFORM_VERSION="1.11.4"
+        echo "Downloading Terraform v$${TERRAFORM_VERSION}..."
+        wget https://releases.hashicorp.com/terraform/$${TERRAFORM_VERSION}/terraform_$${TERRAFORM_VERSION}_linux_amd64.zip
+        unzip terraform_$${TERRAFORM_VERSION}_linux_amd64.zip
+        mv terraform /usr/local/bin/
+        terraform version
+
+        echo "--- Destroying 06-consumer/GCE stage ---"
+        cd execution/06-consumer/GCE && terraform init && terraform destroy -auto-approve && cd ../../..
+
+        echo "--- Destroying 04-producer/BigQuery stage ---"
+        cd execution/04-producer/BigQuery && terraform init && terraform destroy -auto-approve && cd ../../..
+
+        echo "--- Destroying 02-networking stage ---"
+        cd execution/02-networking && terraform init && terraform destroy -auto-approve && cd ../..
+
+        echo "--- Destroying 01-organization stage ---"
+        cd execution/01-organization && terraform init && terraform destroy -auto-approve && cd ../..
+
+        echo "✅ Complete BigQuery setup destruction finished."
+
+options:
+  env:
+    - 'TF_VAR_project_id=$PROJECT_ID'
+
+timeout: 3600s # 1 hour
+
+tags:
+  - 'terraform'
+  - 'bigquery'
+  - 'bq-complete-setup'
+  - 'destroy'

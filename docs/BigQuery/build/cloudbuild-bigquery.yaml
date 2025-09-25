@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,17 +29,28 @@ steps:
         mv terraform /usr/local/bin/
         terraform version
 
+        # Navigate to the execution directory where run.sh is located
+        cd execution
+
+        # The 00-bootstrap stage is crucial. Ensure users know to run it manually first if not included here.
+        # Or, uncomment if it's to be fully automated and idempotent.
+        # echo "Executing 00-bootstrap stage..."
+        # ./run.sh -s bootstrap -t init-apply-auto-approve
+
         echo "--- Executing 01-organization stage ---"
-        cd execution/01-organization && terraform init && terraform apply -var-file="../../configuration/organization.tfvars" -auto-approve && cd ../..
+        ./run.sh -s organization -t init-apply-auto-approve
 
         echo "--- Executing 02-networking stage ---"
-        cd execution/02-networking && terraform init && terraform apply -var-file="../../configuration/networking.tfvars" -auto-approve && cd ../..
+        ./run.sh -s networking -t init-apply-auto-approve
+
+        echo "--- Executing 03-security/GCE stage  ---"
+        ./run.sh -s security/gce -t init-apply-auto-approve
 
         echo "--- Executing 04-producer/BigQuery stage ---"
-        cd execution/04-producer/BigQuery && terraform init && terraform apply -auto-approve && cd ../../..
+        ./run.sh -s producer/bigquery -t init-apply-auto-approve
 
         echo "--- Executing 06-consumer/GCE stage ---"
-        cd execution/06-consumer/GCE && terraform init && terraform apply -auto-approve && cd ../../..
+        ./run.sh -s consumer/gce -t init-apply-auto-approve
 
         echo "✅ Complete BigQuery setup deployment finished."
 

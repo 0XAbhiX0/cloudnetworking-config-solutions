@@ -2,15 +2,15 @@
 
 **On this page**
 
-1.  Introduction
-2.  Objectives
-3.  Architecture
-4.  Deploy the Solution
-5.  Deploy with "single-click"
-6.  Deploy through Terraform-cli
-7.  Optional - Delete the Deployment
-8.  Troubleshoot Errors
-9.  Submit Feedback
+1.  [Introduction](#introduction)
+2.  [Objectives](#objectives)
+3.  [Architecture](#architecture)
+4.  [Deploy the Solution](#deploy-the-solution)
+5.  [Deploy with "single-click"](#deploy-with-single-click)
+6.  [Deploy through Terraform-cli](#deploy-through-terraform-cli)
+7.  [Optional - Delete the Deployment](#optional---delete-the-deployment-using-cloud-build)
+8.  [Troubleshoot Errors](#troubleshoot-errors)
+9.  [Submit Feedback](#submit-feedback)
 
 ---
 
@@ -86,7 +86,7 @@ This method uses Google Cloud Shell and Cloud Build to automate the deployment.
 
 1.  **Open in Cloud Shell:** Click the button below to clone the repository and open the example configuration files in the Cloud Shell editor.
 
-    <a href="https://ssh.cloud.google.com/cloudshell/editor?shellonly=true&cloudshell_git_repo=https://github.com/0XAbhiX0/cloudnetworking-config-solutions.git&cloudshell_git_branch=main&cloudshell_workspace=.&cloudshell_open_in_editor=configuration/organization.tfvars,configuration/networking.tfvars,configuration/security/gce.tfvars,execution/04-producer/BigQuery/config/dataset.yaml.example,execution/06-consumer/GCE/config/instance.yaml.example&cloudshell_tutorial=docs/BigQuery/bigquery-producer.md#deploy-with-single-click" target="_new">
+    <a href="https://ssh.cloud.google.com/cloudshell/editor?shellonly=true&cloudshell_git_repo=https://github.com/0XAbhiX0/cloudnetworking-config-solutions.git&cloudshell_git_branch=main&cloudshell_workspace=.&cloudshell_open_in_editor=configuration/organization.tfvars,configuration/networking.tfvars,configuration/security/gce.tfvars,configuration/producer/BigQuery/config/dataset.yaml.example,configuration/consumer/GCE/config/instance.yaml.example&cloudshell_tutorial=docs/BigQuery/bigquery-producer.md#deploy-with-single-click" target="_new">
     <img alt="Open in Cloud Shell" src="https://gstatic.com/cloudssh/images/open-btn.svg">
     </a>
 
@@ -99,12 +99,14 @@ This method uses Google Cloud Shell and Cloud Build to automate the deployment.
 
     When prompted, enter your Google Cloud Project ID.
 
-3.  **Update and Rename Configuration Files:**
-    The Cloud Shell editor will open example YAML files. You must update them with your specific values (`project_id`, `dataset_id`, etc.) and **rename them by removing the `.example` suffix**. Only files ending in `.yaml` will be processed.
+3. Update and Rename Configuration Files
+    The Cloud Shell editor will open the necessary configuration files. Review each file and update values (project IDs, user IDs/groups, network names, regions, etc.) as per your requirements. Follow the guidance in the ["Deploy through Terraform-cli"](#deploy-through-terraform-cli) section of this document for details on each file
 
-    * In the Cloud Shell file explorer, navigate to `04-producer/BigQuery/config/`.
-    * Update `dataset.yaml.example` with your details and rename it to `dataset.yaml`.
-    * (Optional) Do the same for `dataset-with-access-controls.yaml.example` if you wish to create a second dataset with more complex permissions.
+    * **`configuration/organization.tfvars`**
+    * **`configuration/networking.tfvars`**
+    * **`configuration/security/gce.tfvars`**
+    * **`configuration/producer/BigQuery/config/dataset.yaml.example`** (Rename to `dataset.yaml` after updating.)
+    * **`configuration/consumer/GCE/config/instance.yaml.example`** (Rename to `instance.yaml` after updating.)
 
 4.  **Submit Cloud Build Job to Deploy BigQuery:**
     Once configurations are updated and prerequisites are met, submit the Cloud Build job. Ensure you are in the root of the cloned repository.
@@ -139,96 +141,96 @@ This method is for users who prefer to run Terraform commands manually. It provi
     sh docs/BigQuery/helper-scripts/prereq-bigquery.sh
     ```
 3.  **Update Configuration Files:**
-    Navigate to the `execution` directory and update the configuration files for each stage.
+    Navigate to the `configuration` directory and update the configuration files for each stage.
 
     * **Stage 01: Organization**
-        Update `execution/01-organization/organization.tfvars`. Set your `project_id` and ensure the necessary APIs for this solution are uncommented.
+        Update `configuration/organization.tfvars`. Set your `project_id` and ensure the necessary APIs for this solution are uncommented.
         ```
-            activate_api_identities = {
-            "project-01" = {
-                project_id = "your-project-id" # <-- UPDATE THIS
-                activate_apis = [
-                "iam.googleapis.com",
-                "compute.googleapis.com",
-                "cloudbuild.googleapis.com",
-                "cloudresourcemanager.googleapis.com",
-                "bigquery.googleapis.com",
-                "bigqueryconnection.googleapis.com"
-                ],
-            },
-            }
+        activate_api_identities = {
+        "project-01" = {
+            project_id = "<your-project-id>" # <-- UPDATE THIS
+            activate_apis = [
+            "iam.googleapis.com",
+            "compute.googleapis.com",
+            "cloudbuild.googleapis.com",
+            "cloudresourcemanager.googleapis.com",
+            "bigquery.googleapis.com",
+            "bigqueryconnection.googleapis.com"
+            ],
+          },
+        }
         ```
 
     * **Stage 02: Networking**
-        Update `execution/02-networking/networking.tfvars`. Define your VPC and the subnet where the consumer VM will live. **Crucially, set `enable_private_access = true`** to allow the VM to reach Google APIs.
+        Update `configuration/networking/networking.tfvars`. Define your VPC and the subnet where the consumer VM will live. **Crucially, set `enable_private_access = true`** to allow the VM to reach Google APIs.
         ```
-            project_id   = "your-project-id" # <-- UPDATE THIS
-            region       = "us-central1"   # <-- UPDATE THIS
+        project_id   = "<your-project-id>" # <-- UPDATE THIS
+        region       = "us-central1"   # <-- UPDATE THIS
 
-            ## VPC input variables
-            network_name = "bq-consumer-vpc" # <-- UPDATE THIS
-            subnets = [
-            {
-                name                  = "bq-consumer-subnet" # <-- UPDATE THIS
-                ip_cidr_range         = "10.10.10.0/24"      # <-- UPDATE THIS
-                region                = "us-central1"        # <-- UPDATE THIS
-                enable_private_access = true                 # REQUIRED for private BQ access
-            }
-            ]
-            shared_vpc_host = false
-            # PSC/Service Connecitvity Variables
+        ## VPC input variables
+        network_name = "bq-consumer-vpc" # <-- UPDATE THIS
+        subnets = [
+        {
+            name                  = "bq-consumer-subnet" # <-- UPDATE THIS
+            ip_cidr_range         = "10.10.10.0/24"      # <-- UPDATE THIS
+            region                = "us-central1"        # <-- UPDATE THIS
+            enable_private_access = true                 # REQUIRED for private BQ access
+        }
+        ]
+        shared_vpc_host = false
+        # PSC/Service Connecitvity Variables
 
-            create_scp_policy      = false # Use true or false based on your requirements
-            subnets_for_scp_policy = [""]  # List subnets here from the same region as the SCP
+        create_scp_policy      = false # Use true or false based on your requirements
+        subnets_for_scp_policy = [""]  # List subnets here from the same region as the SCP
 
-            ## Cloud Nat input variables
-            create_nat = false # Use true or false 
+        ## Cloud Nat input variables
+        create_nat = false # Use true or false 
 
-            ## Cloud HA VPN input variables
+        ## Cloud HA VPN input variables
 
-            create_havpn = false
-            peer_gateways = {
-            default = {
-                gcp = "" # e.g. projects/<google-cloud-peer-projectid>/regions/<google-cloud-region>/vpnGateways/<peer-vpn-name>
-            }
-            }
+        create_havpn = false
+        peer_gateways = {
+        default = {
+            gcp = "" # e.g. projects/<google-cloud-peer-projectid>/regions/<google-cloud-region>/vpnGateways/<peer-vpn-name>
+        }
+        }
 
-            tunnel_1_router_bgp_session_range = ""
-            tunnel_1_bgp_peer_asn             = 64514
-            tunnel_1_bgp_peer_ip_address      = ""
-            tunnel_1_shared_secret            = ""
+        tunnel_1_router_bgp_session_range = ""
+        tunnel_1_bgp_peer_asn             = 64514
+        tunnel_1_bgp_peer_ip_address      = ""
+        tunnel_1_shared_secret            = ""
 
-            tunnel_2_router_bgp_session_range = ""
-            tunnel_2_bgp_peer_asn             = 64514
-            tunnel_2_bgp_peer_ip_address      = ""
-            tunnel_2_shared_secret            = ""
+        tunnel_2_router_bgp_session_range = ""
+        tunnel_2_bgp_peer_asn             = 64514
+        tunnel_2_bgp_peer_ip_address      = ""
+        tunnel_2_shared_secret            = ""
 
-            ## Cloud Interconnect input variables
+        ## Cloud Interconnect input variables
 
-            create_interconnect = false # Use true or false
+        create_interconnect = false # Use true or false
         ```
     * **Stage 03: Security**
         Update `configuration/security/gce.tfvars` to define firewall rules for your VPC. This example allows secure SSH access via IAP.
         ```
-        project_id = "your-project-id" # <-- UPDATE THIS
+        project_id = "<your-project-id>" # <-- UPDATE THIS
         network    = "bq-consumer-vpc" # <-- Must match the network_name from the 02-networking stage
 
-        ingress_rules = [
-          {
-            name        = "allow-ssh-from-iap"
+        ingress_rules = {
+        # The rule name is now the "key" of the map entry
+        "allow-ssh-from-iap" = {
             description = "Allow SSH access from Google's Identity-Aware Proxy service"
             priority    = 1000
             source_ranges = [
-              "35.235.240.0/20", # Google IAP IP Range
+            "35.235.240.0/20", # Google IAP IP Range
             ]
             target_tags = ["allow-ssh-iap"]
             allow = [{
-              protocol = "tcp"
-              ports    = ["22"]
+            protocol = "tcp"
+            ports    = ["22"]
             }]
-          },
-          {
-            name        = "allow-internal-vpc-traffic"
+        },
+        
+        "allow-internal-vpc-traffic" = {
             description = "Allow all traffic from within the VPC network"
             priority    = 1000
             source_ranges = [
@@ -240,64 +242,81 @@ This method is for users who prefer to run Terraform commands manually. It provi
             protocol = "all"
             ports    = []
             }]
-          }
-        ]
+        }
+        }
         ```
 
     * **Stage 04: BigQuery Producer**
-        Create a new file `execution/04-producer/BigQuery/config/bigquery.yaml` from the provided example. Update it with your dataset details.
+        Create a new file `configuration/producer/BigQuery/config/bigquery.yaml` from the provided example. Update it with your dataset details.
         ```yaml
-            project_id: <your-project-id>
-            dataset_id: data_reports
-            dataset_name: Data Reports
-            description: Confidential dataset for analysis
-            location: US
+        project_id: <your-project-id>
+        dataset_id: "data_reports"
+        dataset_name: "Data Reports"
+        description: "Confidential dataset for analysis"
+        location: US
 
-            access:
-            - role: roles/bigquery.dataViewer
-                group_by_email: <data-viewers@your-company.com>
-            - role: roles/bigquery.dataOwner
-                user_by_email: <data-owner@your-company.com>
+        access:
+        - role: roles/bigquery.dataViewer
+            group_by_email: <data-viewers@your-company.com>
+        - role: roles/bigquery.dataOwner
+            user_by_email: <data-owner@your-company.com>
 
-            tables:
-            - table_id: financial_reports
-                description: Table containing financial data.
-                deletion_protection: false
-                schema: >
-                [
-                    {
-                    "name": "report_id", "type": "STRING", "mode": "REQUIRED"
-                    },
-                    {
-                    "name": "quarter", "type": "STRING", "mode": "NULLABLE"
-                    }
-                ]
+        tables:
+        - table_id: "financial_reports"
+            description: "Table containing financial data."
+            deletion_protection: false
+            schema: >
+            [
+                {
+                "name": "report_id", "type": "STRING", "mode": "REQUIRED"
+                },
+                {
+                "name": "quarter", "type": "STRING", "mode": "NULLABLE"
+                }
+            ]
+        ```
+
+    * **03-security stage(Google Managed SSL Certificates)**
+        Update `configuration/security/Certificates/Compute-SSL-Certs/Google-Managed/google_managed_ssl.tfvars` - update the google cloud project ID in the google_managed_ssl.tfvars.
+        ```
+        project_id           = "<producer-project-id>"
+        ssl_certificate_name = "my-managed-ssl-cert"
+        ssl_managed_domains = [
+        {
+            domains = ["example.com", "www.example.com"]
+        }
+        ]
+        ```
+
+
+    * **05-producer-connectivity stage**
+        For this user journey we do not need to create any psc connections hence go to `configuration/producer-connectivity.tfvars` and update the contents of producer-connectivity.tfvars file to look like this.
+        ```
+        psc_endpoints = []
         ```
 
     * **Stage 06: Consumer VM**
-        Create a new file `execution/06-consumer/GCE/config/instance.yaml`. This defines the GCE instance that will be used to test connectivity to BigQuery.
+        Create a new file `configuration/consumer/GCE/config/instance.yaml`. This defines the GCE instance that will be used to test connectivity to BigQuery.
         ```yaml
-            name: bq-client-vm
-            project_id: <your-project-id>
-            region: us-central1
-            zone: us-central1-a
-            image: ubuntu-os-cloud/ubuntu-2204-lts
-            network: projects/<your-project-id>/global/networks/bq-consumer-vpc
-            subnetwork: projects/<your-project-id>/regions/us-central1/subnetworks/bq-consumer-subnet
-            tags:
-              - allow-ssh-iap 
+        name: bq-client-vm
+        project_id: <your-project-id>
+        region: us-central1
+        zone: us-central1-a
+        image: ubuntu-os-cloud/ubuntu-2204-lts
+        network: projects/<your-project-id>/global/networks/bq-consumer-vpc
+        subnetwork: projects/<your-project-id>/regions/us-central1/subnetworks/bq-consumer-subnet
         ```
 4.  **Execute Terraform Stages:**
     You can deploy the stages individually using `run.sh` or deploy all stages automatically. Navigate to the `execution/` directory and run:
 
     ```bash
-        ./run.sh -s all -t init-apply-auto-approve
+    ./run.sh -s all -t init-apply-auto-approve
     ```
 
     **or**
 
     ```bash
-        ./run.sh --stage all --tfcommand init-apply-auto-approve
+    ./run.sh --stage all --tfcommand init-apply-auto-approve
     ```
 
 5.  **Verify Deployment:**

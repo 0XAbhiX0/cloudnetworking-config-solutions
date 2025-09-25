@@ -14,7 +14,6 @@
 # limitations under the License.
 
 set -e
-
 if [ -z "$GOOGLE_CLOUD_PROJECT" ]; then
     echo "Project not set!"
     echo "What project do you want to deploy the solution to?"

@@ -256,13 +256,13 @@ This method is for users who prefer to run Terraform commands manually. It provi
         location: US
 
         access:
-        - role: roles/bigquery.dataViewer
+          - role: roles/bigquery.dataViewer
             group_by_email: <data-viewers@your-company.com>
-        - role: roles/bigquery.dataOwner
+          - role: roles/bigquery.dataOwner
             user_by_email: <data-owner@your-company.com>
 
         tables:
-        - table_id: "financial_reports"
+          - table_id: "financial_reports"
             description: "Table containing financial data."
             deletion_protection: false
             schema: >

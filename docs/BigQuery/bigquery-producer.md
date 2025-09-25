@@ -2,15 +2,15 @@
 
 **On this page**
 
-1.  Introduction
-2.  Objectives
-3.  Architecture
-4.  Deploy the Solution
-5.  Deploy with "single-click"
-6.  Deploy through Terraform-cli
-7.  Optional - Delete the Deployment
-8.  Troubleshoot Errors
-9.  Submit Feedback
+1.  [Introduction](#introduction)
+2.  [Objectives](#objectives)
+3.  [Architecture](#architecture)
+4.  [Deploy the Solution](#deploy-the-solution)
+5.  [Deploy with "single-click"](#deploy-with-single-click)
+6.  [Deploy through Terraform-cli](#deploy-through-terraform-cli)
+7.  [Optional - Delete the Deployment](#optional---delete-the-deployment-using-cloud-build)
+8.  [Troubleshoot Errors](#troubleshoot-errors)
+9.  [Submit Feedback](#submit-feedback)
 
 ---
 
@@ -86,7 +86,7 @@ This method uses Google Cloud Shell and Cloud Build to automate the deployment.
 
 1.  **Open in Cloud Shell:** Click the button below to clone the repository and open the example configuration files in the Cloud Shell editor.
 
-    <a href="https://ssh.cloud.google.com/cloudshell/editor?shellonly=true&cloudshell_git_repo=https://github.com/0XAbhiX0/cloudnetworking-config-solutions.git&cloudshell_git_branch=main&cloudshell_workspace=.&cloudshell_open_in_editor=configuration/organization.tfvars,configuration/networking.tfvars,configuration/security/gce.tfvars,execution/04-producer/BigQuery/config/dataset.yaml.example,execution/06-consumer/GCE/config/instance.yaml.example&cloudshell_tutorial=docs/BigQuery/bigquery-producer.md#deploy-with-single-click" target="_new">
+    <a href="https://ssh.cloud.google.com/cloudshell/editor?shellonly=true&cloudshell_git_repo=https://github.com/0XAbhiX0/cloudnetworking-config-solutions.git&cloudshell_git_branch=main&cloudshell_workspace=.&cloudshell_open_in_editor=configuration/organization.tfvars,configuration/networking.tfvars,configuration/security/gce.tfvars,configuration/producer/BigQuery/config/dataset.yaml.example,configuration/consumer/GCE/config/instance.yaml.example&cloudshell_tutorial=docs/BigQuery/bigquery-producer.md#deploy-with-single-click" target="_new">
     <img alt="Open in Cloud Shell" src="https://gstatic.com/cloudssh/images/open-btn.svg">
     </a>
 
@@ -99,12 +99,14 @@ This method uses Google Cloud Shell and Cloud Build to automate the deployment.
 
     When prompted, enter your Google Cloud Project ID.
 
-3.  **Update and Rename Configuration Files:**
-    The Cloud Shell editor will open example YAML files. You must update them with your specific values (`project_id`, `dataset_id`, etc.) and **rename them by removing the `.example` suffix**. Only files ending in `.yaml` will be processed.
+3. Update and Rename Configuration Files
+    The Cloud Shell editor will open the necessary configuration files. Review each file and update values (project IDs, user IDs/groups, network names, regions, etc.) as per your requirements. Follow the guidance in the ["Deploy through Terraform-cli"](#deploy-through-terraform-cli) section of this document for details on each file
 
-    * In the Cloud Shell file explorer, navigate to `04-producer/BigQuery/config/`.
-    * Update `dataset.yaml.example` with your details and rename it to `dataset.yaml`.
-    * (Optional) Do the same for `dataset-with-access-controls.yaml.example` if you wish to create a second dataset with more complex permissions.
+    * **`configuration/organization.tfvars`**
+    * **`configuration/networking.tfvars`**
+    * **`configuration/security/gce.tfvars`**
+    * **`configuration/producer/BigQuery/config/dataset.yaml.example`** (Rename to `dataset.yaml` after updating.)
+    * **`configuration/consumer/GCE/config/instance.yaml.example`** (Rename to `instance.yaml` after updating.)
 
 4.  **Submit Cloud Build Job to Deploy BigQuery:**
     Once configurations are updated and prerequisites are met, submit the Cloud Build job. Ensure you are in the root of the cloned repository.
@@ -139,10 +141,10 @@ This method is for users who prefer to run Terraform commands manually. It provi
     sh docs/BigQuery/helper-scripts/prereq-bigquery.sh
     ```
 3.  **Update Configuration Files:**
-    Navigate to the `execution` directory and update the configuration files for each stage.
+    Navigate to the `configuration` directory and update the configuration files for each stage.
 
     * **Stage 01: Organization**
-        Update `execution/01-organization/organization.tfvars`. Set your `project_id` and ensure the necessary APIs for this solution are uncommented.
+        Update `configuration/organization.tfvars`. Set your `project_id` and ensure the necessary APIs for this solution are uncommented.
         ```
             activate_api_identities = {
             "project-01" = {
@@ -160,7 +162,7 @@ This method is for users who prefer to run Terraform commands manually. It provi
         ```
 
     * **Stage 02: Networking**
-        Update `execution/02-networking/networking.tfvars`. Define your VPC and the subnet where the consumer VM will live. **Crucially, set `enable_private_access = true`** to allow the VM to reach Google APIs.
+        Update `configuration/networking/networking.tfvars`. Define your VPC and the subnet where the consumer VM will live. **Crucially, set `enable_private_access = true`** to allow the VM to reach Google APIs.
         ```
             project_id   = "your-project-id" # <-- UPDATE THIS
             region       = "us-central1"   # <-- UPDATE THIS
@@ -245,7 +247,7 @@ This method is for users who prefer to run Terraform commands manually. It provi
         ```
 
     * **Stage 04: BigQuery Producer**
-        Create a new file `execution/04-producer/BigQuery/config/bigquery.yaml` from the provided example. Update it with your dataset details.
+        Create a new file `configuration/producer/BigQuery/config/bigquery.yaml` from the provided example. Update it with your dataset details.
         ```yaml
             project_id: <your-project-id>
             dataset_id: data_reports
@@ -275,7 +277,7 @@ This method is for users who prefer to run Terraform commands manually. It provi
         ```
 
     * **Stage 06: Consumer VM**
-        Create a new file `execution/06-consumer/GCE/config/instance.yaml`. This defines the GCE instance that will be used to test connectivity to BigQuery.
+        Create a new file `configuration/consumer/GCE/config/instance.yaml`. This defines the GCE instance that will be used to test connectivity to BigQuery.
         ```yaml
             name: bq-client-vm
             project_id: <your-project-id>

@@ -29,6 +29,9 @@ steps:
         mv terraform /usr/local/bin/
         terraform version
 
+        # Navigate to the execution directory where run.sh is located
+        cd execution
+
         echo "--- Destroying 06-consumer/GCE stage ---"
         ./run.sh -s consumer/gce -t destroy-auto-approve
 

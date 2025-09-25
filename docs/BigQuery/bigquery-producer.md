@@ -278,14 +278,14 @@ This method is for users who prefer to run Terraform commands manually. It provi
             description: "Table containing financial data."
             deletion_protection: false
             schema: >
-            [
-              {
-              "name": "report_id", "type": "STRING", "mode": "REQUIRED"
-              },
-              {
-              "name": "quarter", "type": "STRING", "mode": "NULLABLE"
-              }
-            ]
+              [
+                {
+                "name": "report_id", "type": "STRING", "mode": "REQUIRED"
+                },
+                {
+                "name": "quarter", "type": "STRING", "mode": "NULLABLE"
+                }
+              ]
         ```
 
     * **05-producer-connectivity stage**

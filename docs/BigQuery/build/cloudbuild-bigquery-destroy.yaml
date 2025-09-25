@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,16 +30,19 @@ steps:
         terraform version
 
         echo "--- Destroying 06-consumer/GCE stage ---"
-        cd execution/06-consumer/GCE && terraform init && terraform destroy -auto-approve && cd ../../..
+        ./run.sh -s consumer/gce -t destroy-auto-approve
 
         echo "--- Destroying 04-producer/BigQuery stage ---"
-        cd execution/04-producer/BigQuery && terraform init && terraform destroy -auto-approve && cd ../../..
+        ./run.sh -s producer/bigquery -t destroy-auto-approve
+
+        echo "--- Destroying 03-security/GCE stage  ---"
+        ./run.sh -s security/gce -t destroy-auto-approve
 
         echo "--- Destroying 02-networking stage ---"
-        cd execution/02-networking && terraform init && terraform destroy -var-file="../../configuration/networking.tfvars" -auto-approve && cd ../..
+        ./run.sh -s networking -t destroy-auto-approve
 
         echo "--- Destroying 01-organization stage ---"
-        cd execution/01-organization && terraform init && terraform destroy -var-file="../../configuration/organization.tfvars" -auto-approve && cd ../..
+        ./run.sh -s organization -t destroy-auto-approve
 
         echo "✅ Complete BigQuery setup destruction finished."
 

@@ -33,19 +33,29 @@ steps:
         cd execution
 
         echo "--- Destroying 06-consumer/GCE stage ---"
+        ./run.sh -s consumer/gce -t init
         ./run.sh -s consumer/gce -t destroy-auto-approve
 
         echo "--- Destroying 04-producer/BigQuery stage ---"
+        ./run.sh -s producer/bigquery -t init
         ./run.sh -s producer/bigquery -t destroy-auto-approve
 
         echo "--- Destroying 03-security/GCE stage  ---"
+        ./run.sh -s security/gce -t init
         ./run.sh -s security/gce -t destroy-auto-approve
 
         echo "--- Destroying 02-networking stage ---"
+        ./run.sh -s networking -t init
         ./run.sh -s networking -t destroy-auto-approve
 
         echo "--- Destroying 01-organization stage ---"
+        ./run.sh -s organization -t init
         ./run.sh -s organization -t destroy-auto-approve
+
+        # If bootstrap was part of apply, uncomment to destroy:
+        # echo "Destroying 00-bootstrap stage resources..."
+        # ./run.sh -s bootstrap -t init
+        # ./run.sh -s bootstrap -t destroy-auto-approve
 
         echo "✅ Complete BigQuery setup destruction finished."
 

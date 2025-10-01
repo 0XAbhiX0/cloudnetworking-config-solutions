@@ -143,7 +143,7 @@ This method is for users who prefer to run Terraform commands manually. It provi
 
         * Update `configuration/bootstrap.tfvars` - update the Google Cloud project IDs and the user IDs/groups in the tfvars.
 
-    * **01-organisation stage**
+    * **01-organization stage**
         Update `configuration/organization.tfvars`. Set your `project_id` and ensure the necessary APIs for this solution are uncommented.
         ```
         activate_api_identities = {
@@ -320,6 +320,23 @@ This method is for users who prefer to run Terraform commands manually. It provi
 
 4.  **Verify Deployment:**
     Once deployment is complete, in the Google Cloud Console, check that the **VPC**, **GCE instance**(VM), and **BigQuery dataset** have been created. You can test connectivity from another VM within the same VPC.
+
+    * Replace `<your-project-id>` and `<your-dataset-id>` with your actual values.
+
+    ```bash
+    gcloud compute ssh bq-client-vm \
+        --zone us-central1-a \
+        --project <your-project-id> \
+        --command "bq ls <your-project-id>:<your-dataset-id>"
+    ```
+
+    A successful connection will return details about the tables in your dataset, like this:
+
+    ```
+       tableId        Type    Labels   Time Partitioning   Clustered Fields
+     ----------------- ------- -------- ------------------- ------------------
+      financial_reports   TABLE
+    ```
 
 ## Troubleshoot Errors
 

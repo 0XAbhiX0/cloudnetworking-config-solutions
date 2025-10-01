@@ -57,6 +57,17 @@ terraform {
 }
 EOF
 
+# Stage 03: Security
+mkdir -p execution/03-security
+cat > execution/03-security/GCE/providers.tf << EOF
+terraform {
+  backend "gcs" {
+    bucket  = "$BUCKET_NAME_BQ"
+    prefix  = "bq_03_security_stage"
+  }
+}
+EOF
+
 # Stage 04: BigQuery Producer
 mkdir -p execution/04-producer/BigQuery
 cat > execution/04-producer/BigQuery/providers.tf << EOF

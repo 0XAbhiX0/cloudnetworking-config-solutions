@@ -32,21 +32,9 @@ steps:
         # Navigate to the execution directory where run.sh is located
         cd execution
 
-        echo "--- Destroying 06-consumer/GCE stage ---"
-        ./run.sh -s consumer/gce -t init
-        ./run.sh -s consumer/gce -t destroy-auto-approve
-
         echo "--- Destroying 04-producer/BigQuery stage ---"
         ./run.sh -s producer/bigquery -t init
         ./run.sh -s producer/bigquery -t destroy-auto-approve
-
-        echo "--- Destroying 03-security/GCE stage  ---"
-        ./run.sh -s security/gce -t init
-        ./run.sh -s security/gce -t destroy-auto-approve
-
-        echo "--- Destroying 02-networking stage ---"
-        ./run.sh -s networking -t init
-        ./run.sh -s networking -t destroy-auto-approve
 
         echo "--- Destroying 01-organization stage ---"
         ./run.sh -s organization -t init

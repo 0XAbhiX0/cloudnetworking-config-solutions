@@ -40,17 +40,8 @@ steps:
         echo "--- Executing 01-organization stage ---"
         ./run.sh -s organization -t init-apply-auto-approve
 
-        echo "--- Executing 02-networking stage ---"
-        ./run.sh -s networking -t init-apply-auto-approve
-
-        echo "--- Executing 03-security/GCE stage  ---"
-        ./run.sh -s security/gce -t init-apply-auto-approve
-
         echo "--- Executing 04-producer/BigQuery stage ---"
         ./run.sh -s producer/bigquery -t init-apply-auto-approve
-
-        echo "--- Executing 06-consumer/GCE stage ---"
-        ./run.sh -s consumer/gce -t init-apply-auto-approve
 
         echo "✅ Complete BigQuery setup deployment finished."
 

@@ -46,28 +46,6 @@ terraform {
 }
 EOF
 
-# Stage 02: Networking
-mkdir -p execution/02-networking
-cat > execution/02-networking/providers.tf << EOF
-terraform {
-  backend "gcs" {
-    bucket  = "$BUCKET_NAME_BQ"
-    prefix  = "bq_02_networking_stage"
-  }
-}
-EOF
-
-# Stage 03: Security
-mkdir -p execution/03-security
-cat > execution/03-security/GCE/providers.tf << EOF
-terraform {
-  backend "gcs" {
-    bucket  = "$BUCKET_NAME_BQ"
-    prefix  = "bq_03_security_stage"
-  }
-}
-EOF
-
 # Stage 04: BigQuery Producer
 mkdir -p execution/04-producer/BigQuery
 cat > execution/04-producer/BigQuery/providers.tf << EOF
@@ -79,24 +57,10 @@ terraform {
 }
 EOF
 
-# Stage 06: Consumer GCE
-mkdir -p execution/06-consumer/GCE
-cat > execution/06-consumer/GCE/providers.tf << EOF
-terraform {
-  backend "gcs" {
-    bucket  = "$BUCKET_NAME_BQ"
-    prefix  = "bq_06_consumer_gce_stage"
-  }
-}
-EOF
-
 echo "Enabling required APIs..."
 gcloud services enable cloudbuild.googleapis.com \
     cloudresourcemanager.googleapis.com \
     iam.googleapis.com \
-    logging.googleapis.com \
-    storage.googleapis.com \
-    compute.googleapis.com \
     serviceusage.googleapis.com \
     bigquery.googleapis.com \
     bigqueryconnection.googleapis.com --project="$GOOGLE_CLOUD_PROJECT"
@@ -109,9 +73,5 @@ CLOUDBUILD_SA="$PROJECT_NUMBER@cloudbuild.gserviceaccount.com"
 gcloud projects add-iam-policy-binding "$GOOGLE_CLOUD_PROJECT" --member="serviceAccount:$CLOUDBUILD_SA" --role="roles/bigquery.admin" --condition=None
 gcloud projects add-iam-policy-binding "$GOOGLE_CLOUD_PROJECT" --member="serviceAccount:$CLOUDBUILD_SA" --role="roles/storage.admin" --condition=None
 gcloud projects add-iam-policy-binding "$GOOGLE_CLOUD_PROJECT" --member="serviceAccount:$CLOUDBUILD_SA" --role="roles/serviceusage.serviceUsageAdmin" --condition=None
-gcloud projects add-iam-policy-binding "$GOOGLE_CLOUD_PROJECT" --member="serviceAccount:$CLOUDBUILD_SA" --role="roles/iam.serviceAccountUser" --condition=None
-gcloud projects add-iam-policy-binding "$GOOGLE_CLOUD_PROJECT" --member="serviceAccount:$CLOUDBUILD_SA" --role="roles/compute.networkAdmin" --condition=None
-gcloud projects add-iam-policy-binding "$GOOGLE_CLOUD_PROJECT" --member="serviceAccount:$CLOUDBUILD_SA" --role="roles/compute.instanceAdmin.v1" --condition=None
-
 
 echo "BigQuery Prerequisites script for complete setup finished successfully!"
